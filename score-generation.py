@@ -4,6 +4,7 @@
 import pandas as pd
 import operator
 import pickle
+import nltk
 
 anime_reviews_file_path = "data/datascorehist-all-share-new.csv"
 anime_review_data = pd.read_csv(anime_reviews_file_path, delimiter="|")
@@ -30,6 +31,8 @@ sorted_anime = sorted(average_scores.items(), key=operator.itemgetter(1))
 
 # The anime list is sorted in ascending order, so the bad anime are the first
 # half of the list, and the best anime are the bottom half of the list
+# Anime scores tend to skew toward the postive end of the review spectrum
+# so this is a reasonable compromise to have adaquate data
 bad_anime = sorted_anime[:2014]
 good_anime = sorted_anime[2014:]
 
