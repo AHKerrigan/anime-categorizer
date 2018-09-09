@@ -4,7 +4,6 @@
 import pandas as pd
 import operator
 import pickle
-import nltk
 
 anime_reviews_file_path = "data/datascorehist-all-share-new.csv"
 anime_review_data = pd.read_csv(anime_reviews_file_path, delimiter="|")

@@ -3,6 +3,12 @@ import pandas as pd
 import pickle 
 import operator
 from collections import Counter
+from sklearn.linear_model import LogisticRegression, SGDClassifier
+import random
+import nltk
+from nltk.classify import ClassifierI
+from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 
 #def find_features(document):
 #    words = word_tokenize(document)
@@ -44,12 +50,51 @@ def build_staff_features(anime_staff_data):
 # We need to build a document that associates some list of staff with 
 # a postive or negative score
 def document_builder(anime_staff_data):
+    bad_anime_list_f = open("pickled_objects/bad_anime.pickle", "rb")
+    good_anime_list_f = open("pickled_objects/good_anime.pickle", "rb")
 
+    # We convert the lists to dictionaries, because the only thing we need them
+    # for in this step is checking to see which list each anime is in
+    bad_anime_list = dict(pickle.load(bad_anime_list_f))
+    good_anime_list = dict(pickle.load(good_anime_list_f))
+
+    document = []
+
+    for index, row in anime_staff_data.iterrows():
+        if row["Anime_ID"] in bad_anime_list:
+            document.append((row["Staff_ID"].split(";"), "neg"))
+        if row["Anime_ID"] in good_anime_list:
+            document.append((row["Staff_ID"].split(";"), "pos"))
+
+    return document
+
+def build_featureset(documents, staff_features):
+    featuresets = []
+    for (staff_list, rev) in documents:
+        features = {}
+        for staff in staff_features:
+            features[staff] = (staff in staff_list)
+        featuresets.append((features, rev))
+    
+    return featuresets
 
 if __name__ == "__main__":
     anime_staff_data = build_panda("data/datastaff-all-share-new.csv")
     build_staff_features(anime_staff_data)
     staff_features = build_staff_features(anime_staff_data)
+    documents = document_builder(anime_staff_data)
+    featureset = build_featureset(documents, staff_features)
+    
+    random.shuffle(featureset)
+    training_set = featureset[:2000]
+    testing_set = featureset[2000:]
 
-    
-    
+    classifier = nltk.NaiveBayesClassifier.train(training_set)
+    print("Original Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier, testing_set))*100)
+    classifier.show_most_informative_features(15)
+
+    LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
+    LogisticRegression_classifier.train(training_set)
+    print("LogisticRegression_classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier, testing_set))*100)
+
+
