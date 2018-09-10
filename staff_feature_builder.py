@@ -85,16 +85,7 @@ if __name__ == "__main__":
     documents = document_builder(anime_staff_data)
     featureset = build_featureset(documents, staff_features)
     
+    # Shuffle the featureset, then pickle and save
     random.shuffle(featureset)
-    training_set = featureset[:2000]
-    testing_set = featureset[2000:]
-
-    classifier = nltk.NaiveBayesClassifier.train(training_set)
-    print("Original Naive Bayes Algo accuracy percent:", (nltk.classify.accuracy(classifier, testing_set))*100)
-    classifier.show_most_informative_features(15)
-
-    LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
-    LogisticRegression_classifier.train(training_set)
-    print("LogisticRegression_classifier accuracy percent:", (nltk.classify.accuracy(LogisticRegression_classifier, testing_set))*100)
-
-
+    save_staff_features = open("pickled_objects/staff_featuresets.pickle", "wb")
+    pickle.dump(featureset, save_staff_features)
