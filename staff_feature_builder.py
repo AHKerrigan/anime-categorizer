@@ -3,12 +3,11 @@ import pandas as pd
 import pickle 
 import operator
 from collections import Counter
-from sklearn.linear_model import LogisticRegression, SGDClassifier
 import random
 import nltk
 from nltk.classify import ClassifierI
 from nltk.classify.scikitlearn import SklearnClassifier
-from sklearn.naive_bayes import MultinomialNB, BernoulliNB
+
 
 #def find_features(document):
 #    words = word_tokenize(document)
@@ -89,3 +88,10 @@ if __name__ == "__main__":
     random.shuffle(featureset)
     save_staff_features = open("pickled_objects/staff_featuresets.pickle", "wb")
     pickle.dump(featureset, save_staff_features)
+
+    training_set = featureset[:2000]
+    testing_set = featureset[2000:]
+
+    bayes_classifier = nltk.NaiveBayesClassifier.train(training_set)
+    print("Classifier accuracy percent:",(nltk.classify.accuracy(bayes_classifier, testing_set))*100)
+    bayes_classifier.show_most_informative_features(15)
