@@ -4,6 +4,9 @@
 import pandas as pd
 import operator
 import pickle
+import numpy as np
+import pylab as pl
+import scipy.stats as stats
 
 anime_reviews_file_path = "data/datascorehist-all-share-new.csv"
 anime_review_data = pd.read_csv(anime_reviews_file_path, delimiter="|")
@@ -26,7 +29,15 @@ for index, row in anime_review_data.iterrows():
 
 # Creates a sorted list of tuples of each anime, sorting them by their average score
 sorted_anime = sorted(average_scores.items(), key=operator.itemgetter(1))
+title_dictionary_file = open("pickled_objects/anime_title_dictionary", "rb")
+title_dictionary = pickle.load(title_dictionary_file)
 
+
+for (ID, score) in sorted_anime:
+    if 'pokemon' in title_dictionary[ID].lower() \
+     or 'pocket monsters' in title_dictionary[ID].lower() \
+     or 'pikachu' in title_dictionary[ID].lower():
+        print(title_dictionary[ID], score)
 
 # The anime list is sorted in ascending order, so the bad anime are the first
 # half of the list, and the best anime are the bottom half of the list
@@ -36,8 +47,8 @@ bad_anime = sorted_anime[:2014]
 good_anime = sorted_anime[2014:]
 
 # Lastly we pickle both lists of anime and their respective scores
-save_bad_anime = open("bad_anime.pickle", "wb")
-save_good_anime = open("good_anime.pickle", "wb")
+save_bad_anime = open("pickled_objects/bad_anime.pickle", "wb")
+save_good_anime = open("pickled_objects/good_anime.pickle", "wb")
 
 pickle.dump(good_anime, save_good_anime)
 pickle.dump(bad_anime, save_bad_anime)
